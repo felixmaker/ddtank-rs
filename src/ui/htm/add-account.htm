@@ -1,0 +1,28 @@
+<html window-width="16em" window-height="14em">
+    <head>
+        <meta charset="utf-8">
+        <title>添加账户</title>
+        <link rel="stylesheet" href="../css/style.css">
+        <style>
+            body {
+                padding: 0.5em 1em;
+            }
+        </style>
+        <script|module>
+            document.on("click", "button#submit", () => {
+                let data = document.$("form#account").value;
+                Window.this.close(data);
+            })
+        </script>
+    </head>
+    <body>
+        <form#account>
+            <div><label>账号</label> <input|text (username) /></div>
+            <div><label>密码</label> <input|password (password) /></div>
+            <div><label>平台</label> <select|dropdown (platform)><option>7K7K</option></select></div>
+            <div><label>区服</label> <input|text (server) /></div>
+            <div><label>昵称</label> <input|text (nickname) /></div>
+            <button#submit>添加账户</button>
+        </form>        
+    </body>
+</html>

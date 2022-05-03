@@ -1,0 +1,80 @@
+body {
+    background: #faf7f7;
+    margin: 0;
+}
+
+button {
+    appearance: none;
+    background: #eeeeee;
+    padding: 0.4em 0.7em;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #dddddd;
+}
+
+button:active {
+    background: #cac9c9;
+}
+
+div.account {
+    display: inline-block;
+    padding-right: 1em;
+}
+
+/* form#account in add-account.htm*/
+
+form#account {
+    flow: vertical;
+    border-spacing: 0.3em;
+}
+
+form#account input {
+    appearance: none;
+    background-color: #ffffff;
+    padding: 0.2em;
+    width: *;
+}
+
+form#account select {
+    appearance: none;
+    padding: 0.3em 0.2em;
+    background-color: #ffffff;
+    width: *;
+}
+
+form#account option {
+    padding: 0.3em 0.2em;
+    background-color: #ffffff;
+}
+
+form#account button#submit {
+    width: *;
+}
+
+div#account-list {
+    padding: 0.5em 0em;
+}
+
+.account {
+    display: inline-block;
+    text-align: center;
+    padding: 0.5em;
+}
+
+.account:hover {
+    background: #e0e0e0;
+}
+
+.account-detail {
+    width: 6em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.account-avator {
+    font-size: 2em;
+    margin-bottom: 0.2em;
+}
