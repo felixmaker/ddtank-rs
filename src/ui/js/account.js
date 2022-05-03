@@ -8,7 +8,12 @@ export class Account extends Element {
         </div>
     }
 
-    ['on contextmenu at .account'](event) {
+    ['on doubleclick'](event) {
+        let account_id = this.getAttribute("key");
+        this.post(new Event("account-login", account_event_dict(account_id)));
+    }
+
+    ['on contextmenu'](event) {
         event.source = Element.create(<menu class="context">
             <li>登录</li>
             <li>修改</li>
@@ -21,15 +26,19 @@ export class Account extends Element {
         let account_id = this.getAttribute("key");
         switch (menuitem.innerText) {
             case "登录":
-                this.post(new Event("account-login", {bubbles: true, data: account_id}));
+                this.post(new Event("account-login", account_event_dict(account_id)));
                 break;
             case "修改":
-                this.post(new Event("account-modify", {bubbles: true, data: account_id}));
+                this.post(new Event("account-modify", account_event_dict(account_id)));
                 break;
             case "删除":
-                this.post(new Event("account-delete", {bubbles: true, data: account_id}));
+                this.post(new Event("account-delete", account_event_dict(account_id)));
                 break;
         }
     }
+    
+}
 
+function account_event_dict(account_id) {
+    return {bubbles: true, data: {account_id: account_id}};
 }

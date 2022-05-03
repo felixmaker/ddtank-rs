@@ -48,8 +48,8 @@ export class App extends Element {
     }
 
     ['on account-login'](event) {
-        let account_id = event.data.id;
-        let account = DB.Account.getById(account_id);        
+        let account_id = event.data.account_id;
+        let account = DB.Account.getById(account_id);
         let {platform, username, password, server, ...others} = account;
 
         Window.this.xcall("login", platform, username, password, server, (response)=>{
@@ -63,7 +63,7 @@ export class App extends Element {
     }
 
     ['on account-modify'](event) {
-        let account_id = event.data.id;
+        let account_id = event.data.account_id;
         let account = DB.Account.getById(account_id);
         let data = Window.this.modal({
             url: __DIR__ + "../htm/edit-account.htm",
@@ -84,6 +84,7 @@ export class App extends Element {
     }
     
     ['on account-delete'](event) {
-        DB.Account.deleteById(event.data.id);
+        DB.Account.deleteById(event.data);
     }
 }
+
