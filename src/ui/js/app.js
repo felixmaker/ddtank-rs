@@ -1,6 +1,6 @@
-import * as Env from "@env";
 import * as DB from "./accountdb.js"
-import {Account} from "./account.js";
+import { Account } from "./account.js";
+import { play } from "./player.js";
 
 export class App extends Element {
 
@@ -50,11 +50,11 @@ export class App extends Element {
     ['on account-login'](event) {
         let account_id = event.data.account_id;
         let account = DB.Account.getById(account_id);
-        let {platform, username, password, server, ...others} = account;
+        let {platform, username, password, server, nickname, ...others} = account;
 
         Window.this.xcall("login", platform, username, password, server, (response)=>{
-            if (response.startsWith("http")) {                                
-                Env.exec("flashplayer_sa.exe", response)
+            if (response.startsWith("http")) {
+                play(`${platform} - ${nickname || username}`, response);
             }
             if (response.startsWith("error")) {
                 Window.this.modal(<error>{response.substring(6)}</error>);
@@ -87,4 +87,3 @@ export class App extends Element {
         DB.Account.deleteById(event.data);
     }
 }
-
