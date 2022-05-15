@@ -1,5 +1,5 @@
 # ddtank-rs
 An easy-to-use ddtank login tool.
 
-# support platform
+# platform
  - 7k7k
