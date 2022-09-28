@@ -84,6 +84,6 @@ export class App extends Element {
     }
     
     ['on account-delete'](event) {
-        DB.Account.deleteById(event.data);
+        DB.Account.deleteById(event.data.account_id);
     }
 }
