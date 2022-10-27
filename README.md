@@ -1,8 +1,11 @@
 # ddtank-rs
 An easy-to-use ddtank login tool.
 
-# platform
- - 7k7k
+# notes
+ - platform (7K7K)
+ - Sciter 5.0.1.0 and above to run
 
-# run requirements
- - sciter 5.0.6 above
+# build ui.rc
+```
+path-to-sciter-js-sdk/bin/windows/packfolder.exe "./src/ui" "./src/ui.rc" -binary
+```

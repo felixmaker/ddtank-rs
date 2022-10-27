@@ -1,18 +1,13 @@
 import * as sys from "@sys";
-import * as Env from "@env";
+import * as env from "@env";
 
-let ddtank_player = "flashplayer_sa.exe";
+const player_exists = sys.fs.$readdir("ddtank-player") ? true : false;
+const flashplayer = env.PLATFORM == "Windows" ? "./flashplayer_sa.exe" : "./flashplayer";
 
-let ddtank_player_dir = sys.fs.$readdir("ddtank-player");
-if (ddtank_player_dir != null) {
-    ddtank_player = "ddtank-player/ddtank-player.exe"
-}
-
-export function play(title = "弹弹堂", url = "") {
-    if (ddtank_player == "ddtank-player/ddtank-player.exe") {
-        Env.exec(ddtank_player, `--title=${title}`, `--url=${url}`)
+export const play = (title = "弹弹堂", url = "") => {
+    if (player_exists) {
+        env.exec("./ddtank-player/ddtank-player", `--title=${title}`, `--url=${url}`)
+        return;
     }
-    if (ddtank_player == "flashplayer_sa.exe") {
-        Env.exec(ddtank_player, url)
-    }    
+    env.exec(flashplayer, url)
 }
