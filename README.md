@@ -1,10 +1,14 @@
 # ddtank-rs
-An easy-to-use ddtank login tool, which supports many platform.
+DDTANK-RS is an easy-to-use ddtank login tool, it supports Linux, Windows and MacOS.
+It's recommanded to play ddtank in web browsers. However you can play it in an standalone 
+flashplayer maybe available from 
+[web archive](https://archive.org/details/standaloneflashplayers). For Windows user,
+downlaod it from [flash.cn](https://www.flash.cn/support/debug-downloads)
 
 ## Requirements
- - Sciter 5.0.1.4
+ - Sciter-JS-SDK 5.0.1.4
  - Rustc 2021
- - ui.rc
+ - Standalone flash player 32
 
 ### build ui.rc
 ```
