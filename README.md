@@ -1,5 +1,5 @@
-# ddtank-rs
-DDTANK-RS is an easy-to-use ddtank login tool, it supports Linux, Windows and MacOS.
+# DDTANK-rs
+DDTANK-rs is an easy-to-use ddtank login tool. It supports Linux, Windows and MacOS.
 It's recommanded to play ddtank in web browsers. However you can play it in an standalone 
 flashplayer maybe available from 
 [web archive](https://archive.org/details/standaloneflashplayers). For Windows user,
