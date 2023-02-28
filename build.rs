@@ -4,6 +4,7 @@ use std::{
 };
 
 use which::which;
+use embed_manifest::{embed_manifest, new_manifest};
 
 fn find_packfolder() -> Option<PathBuf> {
     if let Ok(path) = which("packfolder") {
@@ -21,12 +22,18 @@ fn find_packfolder() -> Option<PathBuf> {
     None
 }
 
-fn main() {    
+fn main() {
+    if std::env::var_os("CARGO_CFG_WINDOWS").is_some() {
+        embed_manifest(new_manifest("Contoso.Sample"))
+            .expect("unable to embed manifest file");
+    }
+
     if let Some(packfolder) = find_packfolder() {
         Command::new(packfolder)
             .args(["./src/ui", "./src/ui.rc", "-binary"])
             .status()
             .unwrap();
-    }
-    println!("cargo:rerun-if-changed=ui");
+    }   
+
+    println!("cargo:rerun-if-changed=ui"); 
 }

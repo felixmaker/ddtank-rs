@@ -112,6 +112,7 @@ name = "ddtank-rs"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "embed-manifest",
  "sciter-rs",
  "select",
  "ureq",
@@ -124,6 +125,12 @@ name = "either"
 version = "1.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7fcaabb2fef8c910e7f4c7ce9f67a1283a1715879a7c230ca9d6d1ae31f16d91"
+
+[[package]]
+name = "embed-manifest"
+version = "1.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "40ff574b0b0a794f8995383bb83f21f8f99214422cae791cb48d66da524b00f7"
 
 [[package]]
 name = "encoding_rs"
