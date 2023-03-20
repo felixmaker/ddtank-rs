@@ -16,10 +16,19 @@
         });
 
         document.on("ready", () => {
-            let data = Window.this.parameters;
+            let { account, strategy_list } = Window.this.parameters;
 
-            if (data != undefined) {
-                let { username, password, strategy, server, nickname, ...others } = Window.this.parameters;
+            let strategy_element = document.$("[name='strategy']");
+            strategy_list.forEach(strategy => {
+                strategy_element.select.options.append(<option value={strategy}>{strategy}</option>);
+            });
+
+            if (strategy_list.length > 0) {
+                strategy_element.value = strategy_list[0];
+            }
+
+            if (account != undefined) {
+                let { username, password, strategy, server, nickname, ...others } = account;
                 document.$("form#account").value = { username, password, strategy, server, nickname };
             }
 

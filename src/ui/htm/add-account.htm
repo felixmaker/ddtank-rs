@@ -14,6 +14,18 @@
             let data = document.$("form#account").value;
             Window.this.close(data);
         })
+
+        document.on("ready", () => {
+            let { strategy_list } = Window.this.parameters;
+            let strategy_element = document.$("[name='strategy']");
+            strategy_list.forEach(strategy => {
+                strategy_element.select.options.append(<option value={strategy}>{strategy}</option>);
+                strategy_element.value = strategy;
+            });
+            if (strategy_list.length > 0) {
+                strategy_element.value = strategy_list[0];
+            }
+        })
     </script>
 </head>
 
@@ -27,7 +39,7 @@
         </div>
         <div><label>策略</label>
             <select|dropdown (strategy)>
-                <option>7k7k.lua</option></select>
+                </select>
         </div>
         <div><label>区服</label>
             <input|text (server) />

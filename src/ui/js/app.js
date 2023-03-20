@@ -44,7 +44,10 @@ const login_account = (account_id) => {
 
 const show_add_account_dialog = () => {
     var data = Window.this.modal({
-        url: __DIR__ + "../htm/add-account.htm"
+        url: __DIR__ + "../htm/add-account.htm",
+        parameters: {
+            strategy_list: Window.this.xcall("get_all_strategy"),
+        }
     });
 
     if (data != undefined) {
@@ -59,7 +62,10 @@ const show_edit_account_dialog = (account_id) => {
     let account = account_db.get_account(account_id);
     let data = Window.this.modal({
         url: __DIR__ + "../htm/edit-account.htm",
-        parameters: account
+        parameters: {
+            strategy_list: Window.this.xcall("get_all_strategy"),
+            account: account
+        }
     });
 
     if (data != undefined) {
