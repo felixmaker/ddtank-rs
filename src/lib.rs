@@ -1,46 +1,127 @@
-use anyhow::{anyhow, Result};
-use select::{document::Document, predicate::Attr};
+use std::collections::HashMap;
 
-pub fn login(platform: &str, username: &str, password: &str, server: &str) -> Result<String>  {
-    match platform.trim().to_lowercase().as_str() {
-        "7k7k" => login_7k7k(username, password, server),
-        _ => Err(anyhow!("such platform is unsupported."))
+use anyhow::{anyhow, Result};
+
+#[derive(Default)]
+pub struct Strategy {
+    scripts: HashMap<String, String>,
+}
+
+impl Strategy {
+    pub fn new(pattern: &str) -> Self {
+        let mut strategy = Strategy::default();
+        strategy.load(pattern);
+        strategy
+    }
+
+    /// Load scripts from path that match a glob pattern.
+    pub fn load(&mut self, pattern: &str) {
+        for entry in glob::glob(pattern).expect("Failed to read glob pattern") {
+            if let Ok(path) = entry {
+                let file_name = path.file_name().unwrap().to_str().unwrap().to_owned();
+                let script = std::fs::read_to_string(path).unwrap();
+                self.scripts.insert(file_name, script);
+            }
+        }
+    }
+
+    /// Get a vector that lists all strategy name.
+    pub fn list(&self) -> Vec<String> {
+        self.scripts.keys().map(|key| key.to_owned()).collect()
+    }
+
+    pub fn get(&self, name: &str) -> Result<String> {
+        let script = self
+            .scripts
+            .get(name)
+            .ok_or_else(|| anyhow!(format!("stratrgy {} do not exist", name)))?
+            .to_owned();
+
+        Ok(script)
     }
 }
 
-pub fn login_7k7k(username: &str, password: &str, server: &str) -> Result<String> {
-    let agent = ureq::AgentBuilder::new()
-        .user_agent("Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.0.3705;)")
-        .build();
-    
-    agent.post("http://web.7k7k.com/source/Post.php")
-        .send_form(&[
-            ("username", username),
-            ("password", password),
-            ("action", "login")
-        ])?;
-    
-    let response = agent.get(format!("http://web.7k7k.com/games/togame.php?target=ddt_7&server_id={}", server).as_str())
-        .call()?
-        .into_string()?;
+/// Execute a strategy by name
+pub fn execute_strategy(
+    script: &str,
+    username: &str,
+    password: &str,
+    server: &str,
+) -> Result<String> {
+    let lua = rlua::Lua::new();
+    let result = lua.context(|lua_context| -> Result<String> {
+        let userdata = lua_context.create_table()?;
+        userdata.set("username", username)?;
+        userdata.set("password", password)?;
+        userdata.set("server_id", server)?;
 
-    let document = Document::from(response.as_str());
-    let url = document.find(Attr("id", "url")).next()
-        .ok_or_else(|| anyhow!("failed to get game url. please check user data."))?
-        .attr("value").ok_or_else(|| anyhow!("failed to get game url. the program may not work. check update."))?;
+        let globals = lua_context.globals();
+        globals.set("userdata", userdata)?;
 
-    let response = agent.get(url).call()?;
+        let agent_constructor = lua_context.create_function(|_, ()| Ok(Agent::new()))?;
+        globals.set("agent", agent_constructor)?;
 
-    let flash_url = url::Url::parse(response.get_url())?;
-    let response_text = response.into_string()?;
+        let result = lua_context.load(&script).eval::<String>()?;
 
-    let document = Document::from(response_text.as_str());
-    let flash_path = document.find(Attr("name", "movie")).next()
-        .ok_or_else(|| anyhow!("failed to get flash path. the program may not work. check update."))?
-        .attr("value").ok_or_else(|| anyhow!("failed to get flash path. the program may not work. check update."))?;
+        Ok(result)
+    })?;
 
-    let flash_url = flash_url.join(format!("../{}", flash_path).as_str())?
-        .to_string();
+    Ok(result)
+}
 
-    Ok(flash_url)
+struct Agent {
+    client: reqwest::blocking::Client,
+}
+
+impl Agent {
+    fn new() -> Self {
+        let mut headers = reqwest::header::HeaderMap::new();
+        headers.insert(
+            reqwest::header::USER_AGENT,
+            "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.0.3705;)"
+                .parse()
+                .unwrap(),
+        );
+
+        let client = reqwest::blocking::Client::builder()
+            .default_headers(headers)
+            .cookie_store(true)
+            .build()
+            .unwrap();
+
+        Self { client }
+    }
+}
+
+impl rlua::UserData for Agent {
+    fn add_methods<'lua, T: rlua::UserDataMethods<'lua, Self>>(methods: &mut T) {
+        methods.add_method("get", |_, agent, (url,): (String,)| {
+            let response = agent.client.get(url).send().unwrap().text().unwrap();
+            Ok(response)
+        });
+
+        methods.add_method("get_with", |_, agent, (url,): (String,)| {
+            let response = agent.client.get(url).send().unwrap();
+            let url = response.url();
+            let url = format!("{}://{}/", url.scheme(), url.host().unwrap());
+            let text = response.text().unwrap();
+            Ok((text, url))
+        });
+
+        methods.add_method("post", |_, agent, (url, form): (String, rlua::Table)| {
+            let form: std::collections::HashMap<String, String> = form
+                .pairs::<String, String>()
+                .into_iter()
+                .map(|pair| {
+                    let (k, v) = pair.unwrap();
+                    (k, v)
+                })
+                .collect();
+
+            let response = agent.client.post(url).form(&form).send().unwrap();
+            let response_text = response.text().unwrap();
+
+            Ok(response_text)
+        });
+    }
 }

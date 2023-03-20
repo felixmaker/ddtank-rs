@@ -1,18 +1,18 @@
-import * as Storage from "@storage"; 
+import * as Storage from "@storage";
 import * as Env from "@env";
 import * as Sciter from "@sciter";
 
-const initDb = storage => { 
-  storage.root = { 
-    version: 1, 
+const initDb = storage => {
+  storage.root = {
+    version: 1,
     accountsByDate: storage.createIndex("date", false), // list of accounts indexed by date of creation
-    accountsById:   storage.createIndex("string", true) // list of accounts indexed by their UID
+    accountsById: storage.createIndex("string", true) // list of accounts indexed by their UID
   }
-  return storage.root; 
+  return storage.root;
 }
 
-let storage = Storage.open(Env.path("documents") +"/ddtank-account.db");
-// var storage = Storage.open("./ddtank-account.db");
+// let storage = Storage.open(Env.path("documents") + "/ddtank-account.db");
+var storage = Storage.open("./ddtank-account.db");
 let root = storage.root || initDb(storage); // get root data object or initialize DB
 
 document.on("beforeunload", () => {
@@ -21,19 +21,19 @@ document.on("beforeunload", () => {
   storage = undefined;
 });
 
-const add_account = (username, password, platform, server, nickname = undefined, date = undefined, id = undefined) => {
+const add_account = (username, password, strategy, server, nickname = undefined, date = undefined, id = undefined) => {
   const account = {
     id: id || Sciter.uuid(),
     username: username,
     password: password,
-    platform: platform,
+    strategy: strategy,
     server: server,
     nickname: nickname,
     date: date || new Date(),
   }
-  
+
   let root = storage.root;
-  root.accountsByDate.set(account.date, account); 
+  root.accountsByDate.set(account.date, account);
   root.accountsById.set(account.id, account);
 
   storage.commit();
@@ -43,8 +43,8 @@ const get_account = id => root.accountsById.get(id);
 const get_all_accounts = () => {
   let account_list = []
   for (let account of root.accountsByDate) {
-    let {id, username, password, platform, server, nickname, ...others} = account;
-    account_list.push({id, username, password, platform, server, nickname});
+    let { id, username, password, strategy, server, nickname, ...others } = account;
+    account_list.push({ id, username, password, strategy, server, nickname });
   }
   return account_list;
 }

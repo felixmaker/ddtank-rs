@@ -1,4 +1,3 @@
-import * as ddtank_player from "./ddtank-player.js";
 import * as account_db from "./accountdb.js"
 
 const { signal } = Reactor;
@@ -10,35 +9,35 @@ export const App = () => <div>
         <button onclick={() => accounts.value = account_db.get_all_accounts()}>🧭 刷新</button>
     </header>
     <main>
-        <div#account-list>
-        { accounts.value.map((account) => <div class="account"
-            ondoubleclick={() => login_account(account.id)} 
-            oncontextmenu={(event) => {
-                event.source = Element.create(<menu class="context">
-                    <li onclick={() => login_account(account.id)}>登录</li>
-                    <li onclick={() => show_edit_account_dialog(account.id)}>修改</li>
-                    <li onclick={() => delete_account(account.id)}>删除</li>
-                </menu>);
-                return true;
-            }}>
+        <div #account-list>
+            {accounts.value.map((account) => <div class="account"
+                ondoubleclick={() => login_account(account.id)}
+                oncontextmenu={(event) => {
+                    event.source = Element.create(<menu class="context">
+                        <li onclick={() => login_account(account.id)}>登录</li>
+                        <li onclick={() => show_edit_account_dialog(account.id)}>修改</li>
+                        <li onclick={() => delete_account(account.id)}>删除</li>
+                    </menu>);
+                    return true;
+                }}>
                 <div class="account-avator">💂</div>
-                <div class="account-detail">{account.platform} - {account.nickname || account.username}</div>
+                <div class="account-detail">{account.strategy.substring(0, account.strategy.length - 4)} - {account.nickname || account.username}</div>
             </div>
-        ) }
+            )}
         </div>
     </main>
 </div>
 
 const login_account = (account_id) => {
     const account = account_db.get_account(account_id);
-    const {platform, username, password, server, nickname} = account;
+    const { strategy, username, password, server, nickname } = account;
 
-    Window.this.xcall("login", platform, username, password, server, (response)=>{
+    Window.this.xcall("login", strategy, username, password, server, (response) => {
         if (response.startsWith("http")) {
-            ddtank_player.play(`${platform} - ${nickname || username}`, response);
+            Window.this.xcall("play_flash", response);
         }
-        if (response.startsWith("error")) {
-            Window.this.modal(<error>{response.substring(6)}</error>);
+        else {
+            Window.this.modal(<error>{response}</error>);
         }
     });
 }
@@ -49,8 +48,8 @@ const show_add_account_dialog = () => {
     });
 
     if (data != undefined) {
-        let {username, password, platform, server, nickname} = data;
-        account_db.add_account(username, password, platform, server, nickname);
+        let { username, password, strategy, server, nickname } = data;
+        account_db.add_account(username, password, strategy, server, nickname);
     }
 
     accounts.value = account_db.get_all_accounts();
@@ -64,11 +63,11 @@ const show_edit_account_dialog = (account_id) => {
     });
 
     if (data != undefined) {
-        let {username, password, platform, server, nickname} = data;
+        let { username, password, strategy, server, nickname } = data;
 
         account.username = username;
         account.password = password;
-        account.platform = platform;
+        account.strategy = strategy;
         account.server = server;
         account.nickname = nickname;
 
