@@ -3,30 +3,34 @@ import * as account_db from "./accountdb.js"
 const { signal } = Reactor;
 const accounts = signal(account_db.get_all_accounts());
 
-export const App = () => <div>
-    <header>
-        <button onclick={() => show_add_account_dialog()}>👩‍🚒 添加账户</button>
-        <button onclick={() => accounts.value = account_db.get_all_accounts()}>🧭 刷新</button>
-    </header>
-    <main>
-        <div #account-list>
-            {accounts.value.map((account) => <div class="account"
-                ondoubleclick={() => login_account(account.id)}
-                oncontextmenu={(event) => {
-                    event.source = Element.create(<menu class="context">
-                        <li onclick={() => login_account(account.id)}>登录</li>
-                        <li onclick={() => show_edit_account_dialog(account.id)}>修改</li>
-                        <li onclick={() => delete_account(account.id)}>删除</li>
-                    </menu>);
-                    return true;
-                }}>
-                <div class="account-avator">💂</div>
-                <div class="account-detail">{account.strategy.substring(0, account.strategy.length - 4)} - {account.nickname || account.username}</div>
-            </div>
-            )}
+export const App = function () {
+    return (
+        <div>
+            <header>
+                <button onclick={() => show_add_account_dialog()}>👩‍🚒 添加账户</button>
+                <button onclick={() => accounts.value = account_db.get_all_accounts()}>🧭 刷新</button>
+            </header>
+            <main>
+                <div id="account-list">
+                    {accounts.value.map((account) => <div class="account"
+                        ondoubleclick={() => login_account(account.id)}
+                        oncontextmenu={(event) => {
+                            event.source = Element.create(<menu class="context">
+                                <li onclick={() => login_account(account.id)}>登录</li>
+                                <li onclick={() => show_edit_account_dialog(account.id)}>修改</li>
+                                <li onclick={() => delete_account(account.id)}>删除</li>
+                            </menu>);
+                            return true;
+                        }}>
+                        <div class="account-avator" disabled>💂</div>
+                        <div class="account-detail" disabled>{account.strategy.substring(0, account.strategy.length - 4)} - {account.nickname || account.username}</div>
+                    </div>
+                    )}
+                </div>
+            </main>
         </div>
-    </main>
-</div>
+    )
+}
 
 const login_account = (account_id) => {
     const account = account_db.get_account(account_id);
