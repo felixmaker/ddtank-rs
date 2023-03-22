@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use anyhow::{anyhow, Result};
+use crypto::digest::Digest;
 
 #[derive(Default)]
 pub struct Strategy {
@@ -60,6 +61,17 @@ pub fn execute_strategy(
 
         let agent_constructor = lua_context.create_function(|_, ()| Ok(Agent::new()))?;
         globals.set("agent", agent_constructor)?;
+
+        let crypto_rs = lua_context.create_table()?;
+        let md5 = lua_context.create_function(|_, (input,): (String,)| {
+            let mut md5 = crypto::md5::Md5::new();
+            md5.input_str(&input);
+            Ok(md5.result_str())
+        })?;
+
+        crypto_rs.set("md5", md5)?;
+
+        globals.set("crypto", crypto_rs)?;
 
         let result = lua_context.load(&script).eval::<String>()?;
 

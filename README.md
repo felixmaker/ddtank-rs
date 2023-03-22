@@ -5,11 +5,12 @@ flashplayer (maybe available at [web archive](https://archive.org/details/standa
 Windows user can downlaod a standalone flashplayer from [flash.cn](https://www.flash.cn/support/debug-downloads)
 
 ## Lua Script API
-Use these API Lua script to login game:
+Use these Lua script API to login game:
  - _G.userdata (username, password, server_id)
  - _G.agent (get, post, get_with)
+ - _G.crypto (md5)
 
-See [7k7k.lua](./scripts/7k7k.lua).
+See [7k7k.lua](./scripts/7k7k.lua) for example.
 
 ## Requirements
  - scite-js-sdk 5.0.2.7 (sciter.dll)
@@ -18,6 +19,6 @@ See [7k7k.lua](./scripts/7k7k.lua).
 ## Current Supported Platform
  - [x] 7K7K
  - [ ] 4399
- - [ ] 7road
+ - [x] 7road
  - [ ] 7road Classic
  - [ ] Common login based on webview2
