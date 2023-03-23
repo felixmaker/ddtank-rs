@@ -20,5 +20,5 @@ See [7k7k.lua](./scripts/7k7k.lua) for example.
  - [x] 7K7K
  - [ ] 4399
  - [x] 7road
- - [ ] 7road Classic
+ - [x] 7road Classic
  - [ ] Common login based on webview2
