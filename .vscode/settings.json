@@ -1,7 +1,9 @@
 {
     "Lua.diagnostics.globals": [
-        "userdata",
         "agent",
         "crypto"
+    ],
+    "Lua.diagnostics.disable": [
+        "lowercase-global"
     ]
 }

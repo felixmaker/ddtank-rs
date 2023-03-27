@@ -4,9 +4,12 @@ It's recommanded to play ddtank in web browsers. However you can play it in an s
 flashplayer (maybe available at [web archive](https://archive.org/details/standaloneflashplayers)). 
 Windows user can downlaod a standalone flashplayer from [flash.cn](https://www.flash.cn/support/debug-downloads)
 
-## Lua Script API
-Use these Lua script API to login game:
- - _G.userdata (username, password, server_id)
+## Use Lua script to create login strategy
+
+In `./scripts` folder, create a lua script named `xxx.lua`. In script, you need to 
+create a function: `function login(username, password, server)`. 
+
+You can use following Lua script API to create login game strategy:
  - _G.agent (get, post, get_with)
  - _G.crypto (md5)
 

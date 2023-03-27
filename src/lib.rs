@@ -51,19 +51,13 @@ pub fn execute_strategy(
 ) -> Result<String> {
     let lua = rlua::Lua::new();
     let result = lua.context(|lua_context| -> Result<String> {
-        let userdata = lua_context.create_table()?;
-        userdata.set("username", username)?;
-        userdata.set("password", password)?;
-        userdata.set("server_id", server)?;
-
         let globals = lua_context.globals();
-        globals.set("userdata", userdata)?;
 
         let agent_constructor = lua_context.create_function(|_, ()| Ok(Agent::new()))?;
         globals.set("agent", agent_constructor)?;
 
         let crypto_rs = lua_context.create_table()?;
-        let md5 = lua_context.create_function(|_, (input,): (String,)| {
+        let md5 = lua_context.create_function(|_, input: String| {
             let mut md5 = crypto::md5::Md5::new();
             md5.input_str(&input);
             Ok(md5.result_str())
@@ -73,7 +67,11 @@ pub fn execute_strategy(
 
         globals.set("crypto", crypto_rs)?;
 
-        let result = lua_context.load(&script).eval::<String>()?;
+        lua_context.load(&script).exec()?;
+
+        let login_function: rlua::Function = globals.get("login")?;
+
+        let result = login_function.call::<_, String>((username, password, server))?;
 
         Ok(result)
     })?;
