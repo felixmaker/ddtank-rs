@@ -10,10 +10,11 @@ In `./scripts` folder, create a lua script named `xxx.lua`, in which you need to
 create a function: `function login(username, password, server)`. 
 
 You can use following Lua script API to create login game strategy:
- - _G.agent (get, post, get_with)
+ - _G.agent (get, post, get_with, load_cookie)
  - _G.crypto (md5)
+ - _G.get_cookie_by_cowv2
 
-See [7k7k.lua](./scripts/7k7k.lua) for example.
+See `./scripts` folder.
 
 ## Use ddtank-lua command line tool to test script (beta)
 
@@ -29,7 +30,7 @@ Use `ddtank-lua --help` to see detailed usage.
 
 ## Current Supported Platform
  - [x] 7K7K
- - [ ] 4399
+ - [x] 4399 (beta, based on webview2)
  - [x] 7road
  - [x] 7road Classic
- - [ ] Common login based on webview2
+ - [x] Common login based on webview2 (beta)

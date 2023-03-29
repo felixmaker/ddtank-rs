@@ -1,7 +1,8 @@
 {
     "Lua.diagnostics.globals": [
         "agent",
-        "crypto"
+        "crypto",
+        "get_cookie_by_cowv2"
     ],
     "Lua.diagnostics.disable": [
         "lowercase-global"

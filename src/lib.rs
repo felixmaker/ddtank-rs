@@ -1,7 +1,8 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, f32::consts::E, io::Read, sync::Arc};
 
 use anyhow::{anyhow, Result};
 use crypto::digest::Digest;
+use reqwest::cookie::Jar;
 
 #[derive(Default)]
 pub struct Strategy {
@@ -64,13 +65,17 @@ pub fn execute_strategy(
         })?;
 
         crypto_rs.set("md5", md5)?;
-
         globals.set("crypto", crypto_rs)?;
 
+        let cowv2_func =
+            lua_context.create_function(|_, (url, re, title): (String, String, String)| {
+                let result = get_cookie_by_cowv2(url, re, title).unwrap();
+                Ok(result)
+            })?;
+        globals.set("get_cookie_by_cowv2", cowv2_func)?;
+
         lua_context.load(&script).exec()?;
-
         let login_function: rlua::Function = globals.get("login")?;
-
         let result = login_function.call::<_, String>((username, password, server))?;
 
         Ok(result)
@@ -81,6 +86,7 @@ pub fn execute_strategy(
 
 struct Agent {
     client: reqwest::blocking::Client,
+    cookie_jar: Arc<Jar>,
 }
 
 impl Agent {
@@ -93,13 +99,17 @@ impl Agent {
                 .unwrap(),
         );
 
+        let cookie_jar: Arc<Jar> = Default::default();
+        let cookie_jar1 = cookie_jar.clone();
+
         let client = reqwest::blocking::Client::builder()
             .default_headers(headers)
             .cookie_store(true)
+            .cookie_provider(cookie_jar1)
             .build()
             .unwrap();
 
-        Self { client }
+        Self { client, cookie_jar }
     }
 }
 
@@ -133,5 +143,36 @@ impl rlua::UserData for Agent {
 
             Ok(response_text)
         });
+
+        methods.add_method(
+            "load_cookie",
+            |_, agent, (url, cookies): (String, String)| {
+                let url: reqwest::Url = url.parse().unwrap();
+
+                let jar1 = agent.cookie_jar.clone();
+                for cookie in cookies.split(';').map(|x| x.trim()) {
+                    jar1.add_cookie_str(cookie, &url);
+                }
+
+                Ok("".to_owned())
+            },
+        );
+    }
+}
+
+fn get_cookie_by_cowv2(url: String, re: String, title: String) -> Result<String> {
+    let mut cowv2 = std::process::Command::new("cowv2")
+        .args(["-u", &url, "-r", &re, "-t", &title])
+        .stdout(std::process::Stdio::piped())
+        .spawn()?;
+
+    let status = cowv2.wait()?;
+    if status.success() {
+        let mut stdout = cowv2.stdout.take().unwrap();
+        let mut cookies = String::new();
+        stdout.read_to_string(&mut cookies)?;
+        Ok(cookies)
+    } else {
+        Err(anyhow::anyhow!("cowv2 exit with no cookie"))
     }
 }
