@@ -106,4 +106,34 @@ impl StoreEngine {
         self.users.extend(new_userdata);
         Ok(())
     }
+
+    pub fn remove(&mut self, uuid: &uuid::Uuid) -> Result<uuid::Uuid> {
+        let write_context = self.db.begin_write()?;
+        {
+            let mut table = write_context.open_table(USER_TABLE)?;
+            let key = uuid.to_string();
+            table.remove(key.as_str())?;
+        }
+        write_context.commit()?;
+        self.users.remove(uuid);
+        Ok(uuid.to_owned())
+    }
+
+    pub fn remove_many<'a, I>(&'a mut self, uuids: I) -> Result<()>
+    where
+        I: IntoIterator<Item = &'a Uuid>,
+    {
+        let mut users = self.users.clone();
+        let write_context = self.db.begin_write()?;
+        {
+            let mut table = write_context.open_table(USER_TABLE)?;
+            for uuid in uuids {
+                table.remove(uuid.to_string().as_str())?;
+                users.remove(uuid);
+            }
+        }
+        write_context.commit()?;
+        self.users = users;
+        Ok(())
+    }
 }
