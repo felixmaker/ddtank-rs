@@ -1,8 +1,10 @@
-use std::{collections::HashMap, f32::consts::E, io::Read, sync::Arc};
+use std::{collections::HashMap, io::Read, sync::Arc};
 
 use anyhow::{anyhow, Result};
 use crypto::digest::Digest;
 use reqwest::cookie::Jar;
+
+pub mod store_engine;
 
 #[derive(Default)]
 pub struct Strategy {

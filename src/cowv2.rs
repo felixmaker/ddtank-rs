@@ -82,7 +82,7 @@ fn main() {
                     .unwrap();
                 *control_flow = ControlFlow::ExitWithCode(1);
             }
-            Event::UserEvent(UserEvent::Navigation(uri)) => {
+            Event::UserEvent(UserEvent::Navigation(_uri)) => {
                 webview
                     .evaluate_script_with_callback("document.cookie", {
                         let proxy = proxy.clone();
