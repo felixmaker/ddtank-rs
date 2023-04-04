@@ -14,7 +14,7 @@ pub struct UserInfo {
     pub date: SystemTime,
 }
 
-const USER_TABLE: redb::TableDefinition<&str, &[u8]> = redb::TableDefinition::new("userdata");
+const USER_TABLE: redb::TableDefinition<&[u8; 16], &[u8]> = redb::TableDefinition::new("userdata");
 
 pub struct StoreEngine {
     db: redb::Database,
@@ -43,7 +43,7 @@ impl StoreEngine {
         let user = {
             let table = read_context.open_table(USER_TABLE)?;
             let bytes = table
-                .get(uuid.to_string().as_str())?
+                .get(uuid.as_bytes())?
                 .ok_or_else(|| anyhow::anyhow!("Failed to get value"))?;
             let user: UserInfo = bincode::deserialize(bytes.value())?;
             user
@@ -63,7 +63,7 @@ impl StoreEngine {
             let map = table
                 .iter()?
                 .map(|(k, v)| {
-                    let uuid = Uuid::parse_str(k.value()).expect("redb failed to work");
+                    let uuid = Uuid::from_bytes(k.value().to_owned());
                     let user: UserInfo =
                         bincode::deserialize(v.value()).expect("redb failed to work");
                     (uuid, user)
@@ -78,9 +78,9 @@ impl StoreEngine {
         let write_context = self.db.begin_write()?;
         {
             let mut table = write_context.open_table(USER_TABLE)?;
-            let key = uuid.to_string();
+            let key = uuid.as_bytes();
             let value = bincode::serialize(user)?;
-            table.insert(key.as_str(), value.as_slice())?;
+            table.insert(key, value.as_slice())?;
         }
         write_context.commit()?;
         self.users.insert(uuid.to_owned(), user.to_owned());
@@ -96,9 +96,9 @@ impl StoreEngine {
         {
             let mut table = write_context.open_table(USER_TABLE)?;
             for (uuid, user) in items {
-                let key = uuid.to_string();
+                let key = uuid.as_bytes();
                 let value = bincode::serialize(user)?;
-                table.insert(key.as_str(), value.as_slice())?;
+                table.insert(key, value.as_slice())?;
                 new_userdata.insert(uuid.to_owned(), user.to_owned());
             }
         }
@@ -111,8 +111,8 @@ impl StoreEngine {
         let write_context = self.db.begin_write()?;
         {
             let mut table = write_context.open_table(USER_TABLE)?;
-            let key = uuid.to_string();
-            table.remove(key.as_str())?;
+            let key = uuid.as_bytes();
+            table.remove(key)?;
         }
         write_context.commit()?;
         self.users.remove(uuid);
@@ -128,7 +128,7 @@ impl StoreEngine {
         {
             let mut table = write_context.open_table(USER_TABLE)?;
             for uuid in uuids {
-                table.remove(uuid.to_string().as_str())?;
+                table.remove(uuid.as_bytes())?;
                 users.remove(uuid);
             }
         }
