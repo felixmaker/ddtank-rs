@@ -432,6 +432,7 @@ dependencies = [
  "rlua",
  "rust-crypto",
  "sciter-rs",
+ "sciter-serde",
  "serde",
  "uuid",
  "which",
@@ -2139,6 +2140,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "sciter-serde"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1cf7c8b6d77d860e9812077690763c02012e81037149f51ee42c6b33b36c0a0b"
+dependencies = [
+ "sciter-rs",
+ "serde",
+]
+
+[[package]]
 name = "scopeguard"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2215,9 +2226,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.94"
+version = "1.0.95"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1c533a59c9d8a93a09c6ab31f0fd5e5f4dd1b8fc9434804029839884765d04ea"
+checksum = "d721eca97ac802aa7777b701877c8004d950fc142651367300d21c1cc0194744"
 dependencies = [
  "itoa 1.0.6",
  "ryu",

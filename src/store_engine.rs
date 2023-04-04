@@ -1,18 +1,9 @@
 use anyhow::Result;
 use redb::ReadableTable;
-use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, path::Path, time::SystemTime};
+use std::{collections::HashMap, path::Path};
 use uuid::Uuid;
 
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
-pub struct UserInfo {
-    pub username: String,
-    pub password: String,
-    pub server: String,
-    pub nickname: String,
-    pub strategy: String,
-    pub date: SystemTime,
-}
+use crate::userinfo::UserInfo;
 
 const USER_TABLE: redb::TableDefinition<&[u8; 16], &[u8]> = redb::TableDefinition::new("userdata");
 
@@ -27,7 +18,7 @@ impl StoreEngine {
         P: AsRef<Path>,
     {
         let db = redb::Database::create(path)?;
-        let users = Self::get_users_from_db(&db)?;
+        let users = Self::get_users_from_db(&db).unwrap_or(HashMap::new());
         Ok(Self { db, users })
     }
 
@@ -52,7 +43,11 @@ impl StoreEngine {
         Ok(user)
     }
 
-    pub fn get_users(&self) -> std::collections::hash_map::Iter<Uuid, UserInfo> {
+    pub fn get_all_users(&self) -> &std::collections::HashMap<Uuid, UserInfo> {
+        &self.users
+    }
+
+    pub fn users(&self) -> std::collections::hash_map::Iter<Uuid, UserInfo> {
         self.users.iter()
     }
 

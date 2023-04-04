@@ -12,23 +12,24 @@ export const App = function () {
             </header>
             <main>
                 <div id="account-list">
-                    {accounts.value.map((account) => <div class="account"
-                        ondoubleclick={() => login_account(account.id)}
-                        oncontextmenu={(event) => {
-                            event.source = Element.create(<menu class="context">
-                                <li onclick={() => login_account(account.id)}>登录</li>
-                                <li onclick={() => show_edit_account_dialog(account.id)}>修改</li>
-                                <li onclick={() => delete_account(account.id)}>删除</li>
-                            </menu>);
-                            return true;
-                        }}>
-                        <div class="account-avator" disabled>💂</div>
-                        <div class="account-detail" disabled>{account.strategy.substring(0, account.strategy.length - 4)} - {account.nickname || account.username}</div>
-                    </div>
-                    )}
+                    {Object.entries(accounts.value).map(([account_id, account]) => {
+                        return <div class="account"
+                            ondoubleclick={() => login_account(account_id)}
+                            oncontextmenu={(event) => {
+                                event.source = Element.create(<menu class="context">
+                                    <li onclick={() => login_account(account_id)}>登录</li>
+                                    <li onclick={() => show_edit_account_dialog(account_id)}>修改</li>
+                                    <li onclick={() => delete_account(account_id)}>删除</li>
+                                </menu>);
+                                return true;
+                            }}>
+                            <div class="account-avator" disabled>💂</div>
+                            <div class="account-detail" disabled>{account.strategy} - {account.nickname || account.username}</div>
+                        </div>
+                    })}
                 </div>
             </main>
-        </div>
+        </div >
     )
 }
 

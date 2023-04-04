@@ -1,65 +1,36 @@
-import * as Storage from "@storage";
-import * as Env from "@env";
-import * as Sciter from "@sciter";
-
-const initDb = storage => {
-  storage.root = {
-    version: 1,
-    accountsByDate: storage.createIndex("date", false), // list of accounts indexed by date of creation
-    accountsById: storage.createIndex("string", true) // list of accounts indexed by their UID
-  }
-  return storage.root;
-}
-
-// let storage = Storage.open(Env.path("documents") + "/ddtank-account.db");
-var storage = Storage.open("./ddtank-account.db");
-let root = storage.root || initDb(storage); // get root data object or initialize DB
-
-document.on("beforeunload", () => {
-  root = undefined;
-  storage.close();
-  storage = undefined;
-});
-
-const add_account = (username, password, strategy, server, nickname = undefined, date = undefined, id = undefined) => {
+const add_account = (username, password, strategy, server, nickname = undefined) => {
   const account = {
-    id: id || Sciter.uuid(),
     username: username,
     password: password,
     strategy: strategy,
     server: server,
-    nickname: nickname,
-    date: date || new Date(),
+    nickname: nickname
   }
-
-  let root = storage.root;
-  root.accountsByDate.set(account.date, account);
-  root.accountsById.set(account.id, account);
-
-  storage.commit();
+  return Window.this.xcall("database_add", account);
 }
 
-const get_account = id => root.accountsById.get(id);
+const get_account = id => Window.this.xcall("database_get", id);
 const get_all_accounts = () => {
-  let account_list = []
-  for (let account of root.accountsByDate) {
-    let { id, username, password, strategy, server, nickname, ...others } = account;
-    account_list.push({ id, username, password, strategy, server, nickname });
-  }
-  return account_list;
+  // let account_list = []
+  // for (let account of root.accountsByDate) {
+  //   let { id, username, password, strategy, server, nickname, ...others } = account;
+  //   account_list.push({ id, username, password, strategy, server, nickname });
+  // }
+  // return account_list;
+  let account = Window.this.xcall("database_get_all");
+  return account
 }
 
 const delete_account = id => {
-  let account = get_account(id);
-  let result = root.accountsByDate.delete(account.date, account);
-  result = root.accountsById.delete(account.id);
-  storage.commit();
+  // let account = get_account(id);
+  // let result = root.accountsByDate.delete(account.date, account);
+  // result = root.accountsById.delete(account.id);
+  // storage.commit();
+  return Window.this.xcall("database_delete", id);
 }
 
 const replace_account = (id, obj) => {
-  let account = get_account(id);
-  root.accountsById.set(id, obj);
-  root.accountsByDate.set(account.date, obj, true);
+  return Window.this.xcall("database_replace", id, obj);
 }
 
 

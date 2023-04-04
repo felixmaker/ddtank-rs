@@ -5,6 +5,7 @@ use crypto::digest::Digest;
 use reqwest::cookie::Jar;
 
 pub mod store_engine;
+pub mod userinfo;
 
 #[derive(Default)]
 pub struct Strategy {
